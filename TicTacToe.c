@@ -5,6 +5,7 @@
 #include <sys/types.h>
 
 char board[3][3] = {{'#', '#', '#'},{'#', '#', '#'},{'#', '#', '#'}};
+const char * username;
 
 void validateWin(char c);
 void printBoard();
@@ -30,7 +31,7 @@ void printBoard(){
 }
 
 int playerInput() {
-    char c[2]; int p = 0, s;
+    char c[16]; int p = 0, s;
     printf("Player Move\nEnter an integer between 1-9:\n");
     while (p < 1 || p > 9){
         gets(c);
@@ -102,14 +103,13 @@ void playerWins(){
     printf("\nWow, you actually won. Adding you to the CoolKidzClub...\n");
     FILE *fp;
     char line[64];
-    const char * name = getUserName();
     int alreadyIn = 0, len;
     fp = fopen("CoolKidzClub.txt", "a+");
     fgets(line, sizeof(line), fp);
     while (fgets(line, sizeof(line), fp)){
         len = strlen(line);
         if(line[len-1] == '\n') line[len-1] = 0;
-        if(strcmp(name, line) == 0) {
+        if(strcmp(username, line) == 0) {
             printf("You are already in the CoolKidzClub.\n");
             alreadyIn = 1;
             break;
@@ -129,6 +129,8 @@ const char * getUserName(){
 
 int main() {
     int isFinished = 0, playerID = 0;
+    username = getUserName();
+    printf("Hey %s,\n", username);
     printf("Can you beat the unbeatable TicTacToe Champion and join the \"CoolKidzClub\"?\n\nPlayers going first have a higher chance of winning. So, make your move.\n");
     printBoard();
     while (isFinished==0){	
