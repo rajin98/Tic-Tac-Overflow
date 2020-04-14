@@ -17,6 +17,7 @@ int checkFinished();
 void aiWins();
 void playerWins();
 const char * getUserName();
+char line[64];
 
 void printBoard(){
     int i, j;
@@ -102,7 +103,6 @@ void aiWins(){
 void playerWins(){
     printf("\nWow, you actually won. Adding you to the CoolKidzClub...\n");
     FILE *fp;
-    char line[64];
     int alreadyIn = 0, len;
     fp = fopen("CoolKidzClub.txt", "a+");
     fgets(line, sizeof(line), fp);
