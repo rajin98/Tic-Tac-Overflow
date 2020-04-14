@@ -17,7 +17,6 @@ int checkFinished();
 void aiWins();
 void playerWins();
 const char * getUserName();
-char line[64];
 
 void printBoard(){
     int i, j;
@@ -32,7 +31,7 @@ void printBoard(){
 }
 
 int playerInput() {
-    char c[16]; int p = 0, s;
+    char c[8]; int p = 0, s;
     printf("Player Move\nEnter an integer between 1-9:\n");
     while (p < 1 || p > 9){
         gets(c);
@@ -101,10 +100,11 @@ void aiWins(){
 }
 
 void playerWins(){
-    printf("\nWow, you actually won. Adding you to the CoolKidzClub...\n");
-    FILE *fp;
+    char line[64];
+    FILE * fp;
     int alreadyIn = 0, len;
-    fp = fopen("CoolKidzClub.txt", "a+");
+    printf("\nWow, you actually won. Adding you to the CoolKidzClub...\n");
+    fp = fopen("/home/kali/CoolKidzClub.txt", "a+");
     fgets(line, sizeof(line), fp);
     while (fgets(line, sizeof(line), fp)){
         len = strlen(line);
@@ -115,13 +115,13 @@ void playerWins(){
             break;
         }
     }
-    if(!alreadyIn) fprintf(fp, "%s", name);
+    if(!alreadyIn) fprintf(fp, "%s\n", username);
     printf("Done.\n");
     fclose(fp);
 }
 
 const char * getUserName(){
-    uid_t uid = geteuid();  
+    uid_t uid = getuid();  
     struct passwd *pw = getpwuid(uid);
     if (pw) return pw->pw_name;
     return "";
@@ -141,4 +141,3 @@ int main() {
     }
     return 0;
 }
-
