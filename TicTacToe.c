@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-// #include <pwd.h>
+#include <pwd.h>
 #include <sys/types.h>
 
 char board[9] = {'#', '#', '#','#', '#', '#','#', '#', '#'};
@@ -50,43 +50,44 @@ int playerInput() {
 
 int aiInput() {
     int move = -1, score = -2, i;
-    for(i = 0; i < 9; ++i) {
-        if(spaceAvailable(i)) {
-            board[i] = 1;
-            int tempScore = -minimax('O');
-            board[i] = 0;
+    for(i = 0; i < 9; i++) {
+        if(spaceAvailable(i+1)) {
+            board[i] = 'O';
+            int tempScore = -minimax('X');
+            board[i] = '#';
             if(tempScore > score) {
                 score = tempScore;
                 move = i;
             }
         }
     }
-    //returns a score based on minimax tree at a given node.
-    board[move] = 1;
+    printf("AI input: %d\n", move+1);
+    return move+1;
 }
 
 
 int minimax(char player) {
     char c = hasWon();
-    if (c != '#') return ((c == 'O') ? -1 : 1)*((player == 'O') ? -1 : 1);
+    if (c == '#') return 0;
+    if (c) return ((c == 'O') ? 1 : -1)*((player == 'O') ? 1 : -1);
 
     int move = -1, score = -2, i;
     for(i = 0; i < 9; i++) {
-        if(spaceAvailable(i)) {
+        if(spaceAvailable(i+1)) {
             board[i] = player;
             int thisScore = -minimax((player == 'O') ? 'X' : 'O');
             if(thisScore > score) {
                 score = thisScore;
                 move = i;
             }
-            board[i] = 0;
+            board[i] = '#';
         }
     }
     if(move == -1) return 0;
     return score;
 }
 
-int spaceAvailable(int p){
+int spaceAvailable(int p) {
     if(board[p-1] == '#') return 1;
     return 0;
 }
@@ -120,7 +121,7 @@ char hasWon() {
     }
 
     if(filled) return '#';
-    else return 0;
+    return 0;
 }
 
 int checkFinsihed() {
