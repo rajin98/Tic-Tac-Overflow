@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <pwd.h>
+// #include <pwd.h>
 #include <sys/types.h>
 
-char board[3][3] = {{'#', '#', '#'},{'#', '#', '#'},{'#', '#', '#'}};
+char board[9] = {'#', '#', '#','#', '#', '#','#', '#', '#'};
 const char * username;
 
-void validateWin(char c);
+char hasWon();
 void printBoard();
 int playerInput();
 int aiInput();
@@ -17,12 +17,13 @@ int checkFinished();
 void aiWins();
 void playerWins();
 const char * getUserName();
+int minimax(char player);
 
 void printBoard(){
     int i, j;
     for(i = 0; i < 3; i++){
         for(j = 0; j < 3; j++){
-            printf("%c",board[i][j]);
+            printf("%c",board[i*3+j]);
             if(j < 2) printf(" | ");
         }
         if(i < 2) printf("\n--+---+--\n");
@@ -47,52 +48,89 @@ int playerInput() {
     return p;
 }
 
-int aiInput(){
+int aiInput() {
+    int move = -1, score = -2, i;
+    for(i = 0; i < 9; ++i) {
+        if(spaceAvailable(i)) {
+            board[i] = 1;
+            int tempScore = -minimax('O');
+            board[i] = 0;
+            if(tempScore > score) {
+                score = tempScore;
+                move = i;
+            }
+        }
+    }
+    //returns a score based on minimax tree at a given node.
+    board[move] = 1;
+}
 
+
+int minimax(char player) {
+    char c = hasWon();
+    if (c != '#') return ((c == 'O') ? -1 : 1)*((player == 'O') ? -1 : 1);
+
+    int move = -1, score = -2, i;
+    for(i = 0; i < 9; i++) {
+        if(spaceAvailable(i)) {
+            board[i] = player;
+            int thisScore = -minimax((player == 'O') ? 'X' : 'O');
+            if(thisScore > score) {
+                score = thisScore;
+                move = i;
+            }
+            board[i] = 0;
+        }
+    }
+    if(move == -1) return 0;
+    return score;
 }
 
 int spaceAvailable(int p){
-    if(board[(p-1)/3][(p-1)%3] == '#') return 1;
+    if(board[p-1] == '#') return 1;
     return 0;
 }
 
 void updateBoard(int playerID, int p){
-    board[(p-1)/3][(p-1)%3] = (playerID) ? 'O' : 'X';
+    board[p-1] = (playerID) ? 'O' : 'X';
 }
 
-int checkFinsihed() {
+char hasWon() {
     int i, j, lines[8]={0}, filled = 1;
     char c;
     for(i = 0; i < 3; i++) {
-        for(j = 0; j < 3; j++){
-            if(board[i][0] != board[i][j]) lines[i] = 1;
-            if(board[0][i] != board[j][i]) lines[i+3] = 1;
-            if(board[i][j] == '#') filled = 0;
+        for(j = 0; j < 3; j++) {
+            if(board[i*3] != board[i*3+j]) lines[i] = 1;
+            if(board[i] != board[j*3+i]) lines[i+3] = 1;
+            if(board[i*3+j] == '#') filled = 0;
         }
-        if(board[0][0] != board[i][i]) lines[6] = 1;
-        if(board[2][0] != board[2-i][i]) lines[7] = 1;
+        if(board[0] != board[i*3+i]) lines[6] = 1;
+        if(board[2*3] != board[(2-i)*3+i]) lines[7] = 1;
     }
 
     for(i = 0; i < 8; i++) {
         if(lines[i] == 0) {
-            if(i < 3) c = board[i][0];
-            else if (i < 6) c = board[0][i-3];
-            else c = board[1][1];
-            if(c != '#'){
-                validateWin(c);
-                return 1;
+            if(i < 3) c = board[i*3];
+            else if (i < 6) c = board[i-3];
+            else c = board[4];
+            if(c != '#') {
+                return c;
             }
         }
     }
 
-    if(filled == 1) printf("\nIt appears that the Champion is stil unbeaten. Better luck next time.\n");
-
-    return filled;
+    if(filled) return '#';
+    else return 0;
 }
 
-void validateWin(char c) {
-    if(c == 'X') playerWins();
-    else aiWins();
+int checkFinsihed() {
+    char c = hasWon();
+
+    if(c == 'O') aiWins();
+    else if (c == 'X') playerWins();
+    else if (c == '#') printf("\nIt appears that the Champion is stil unbeaten. Better luck next time.\n");
+
+    return (c != 0);
 }
 
 void aiWins(){
@@ -133,8 +171,8 @@ int main() {
     printf("Hey %s,\n", username);
     printf("Can you beat the unbeatable TicTacToe Champion and join the \"CoolKidzClub\"?\n\nPlayers going first have a higher chance of winning. So, make your move.\n");
     printBoard();
-    while (isFinished==0){	
-        updateBoard(playerID, (playerID) ? playerInput() : playerInput());
+    while (isFinished == 0){	
+        updateBoard(playerID, (playerID) ? aiInput() : playerInput());
         printBoard();
         playerID = (playerID ^ 1) & 1;
         isFinished = checkFinsihed();
