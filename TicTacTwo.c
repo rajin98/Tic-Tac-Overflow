@@ -31,15 +31,15 @@ void printBoard(){
 }
 
 int playerInput() {
-    char c[6], d[2]; int p = 0, s;
+    char c[14], d[2]; int p = 0, s;
     printf("Player Move\nEnter an integer between 1-9: ");
     while (p < 1 || p > 9) {
         gets(c);
         printf("Are you sure you want to place your token at position ");
-        printf(c); printf("? [Y/N]\n");
-        scanf("%c",&d);
+        printf(c); printf("? (y/n)\n");
+        gets(d);
 
-        if(c != 'Y' || c != 'y') continue;
+        if(!(d[0] == 'Y' || d[0] == 'y')) continue;
 
         p = atoi(c);
         if(p > 0 && p < 10) {
@@ -133,7 +133,7 @@ char hasWon() {
 int checkFinsihed() {
     char c = hasWon();
 
-    winResponse(char c);
+    winResponse(c);
     return (c != 0);
 }
 
@@ -183,3 +183,4 @@ int main() {
     }
     return 0;
 }
+
